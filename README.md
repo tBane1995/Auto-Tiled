@@ -9,4 +9,4 @@
 
 ## Zrzuty ekranu
 ![Zrzut ekranu](screenshots/01.png)
-
+![Zrzut ekranu](screenshots/02.png)
