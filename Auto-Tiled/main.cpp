@@ -14,6 +14,8 @@ int main() {
 	SFML_intro* intro = new SFML_intro(window);
 	delete intro;
 
+	palette = new Palette();
+
 	while (window->isOpen()) {
 
 		mousePosition = sf::Mouse::getPosition(*window); // get the mouse position about window
@@ -28,11 +30,16 @@ int main() {
 			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
 				window->close();
 			}
+
+			palette->handleEvent(event);
 		}
+
+		// update
+		palette->update();
 
 		// render
 		window->clear(sf::Color(48,48,48));
-
+		palette->draw();
 		window->display();
 
 
