@@ -7,6 +7,9 @@ target_sources(${PROJECT_NAME} PRIVATE
     Auto-Tiled/window.hpp
     Auto-Tiled/SFML_intro.hpp
     Auto-Tiled/mouse.hpp
+    Auto-Tiled/elementGUI.hpp
+    Auto-Tiled/palette.hpp
+    Auto-Tiled/map.hpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
