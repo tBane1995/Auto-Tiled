@@ -8,8 +8,18 @@ public:
 	std::string data;
 	sf::Vector2i size;
 	std::vector < sf::Sprite > sprites;
+	std::vector < sf::Texture > textures;
 
 	Map() {
+
+		
+		data =
+			"..##"
+			"..##"
+			"..##"
+			"..##";
+
+		size = sf::Vector2i(4, 4);
 
 		data =
 			"################"
@@ -22,54 +32,79 @@ public:
 			"################";
 
 		size = sf::Vector2i(16, 8);
+
+		data =
+			"................"
+			"..###......##..."
+			".#####...#####.."
+			".############..."
+			"...##########..."
+			"..##..#######..."
+			"..#.....###....."
+			"................";
+
+		size = sf::Vector2i(16, 8);
+		
 		position.x = (view.getSize().x - size.x * 32) / 2;
 		position.y = (view.getSize().y - size.y * 32) / 2;
 		
-		
+		for (int i = 0; i < 16; i++) {
+			sf::Texture t;
+			t.loadFromFile("tex\\" + std::to_string(i) + ".png");
+			textures.push_back(t);
+		}
 
 		for (int y = 0; y < size.y; y++) {
 			for (int x = 0; x < size.x; x++) {
-				char tile = data[y*size.x + x];
+				std::cout << data[y*size.x + x];
+			}
+			std::cout << "\n";
+		}
+		std::cout << "\n";
 
-				std::cout << tile;
+		
+		for (int y = 0; y < size.y; y++) {
+			for (int x = 0; x < size.x; x++) {
+
+				char tile = data[y*size.x + x];
 				int index = atlasIndexAt(x, y, tile);
-				//int tex_index = 0 .. 256 -> 0 .. 15
-	
-				sf::Texture* tex = &palette->buttons[0]->tex;
 
 				sf::Sprite spr = sf::Sprite();
-				spr.setTexture(*tex);
-				spr.setScale(2, 2);
+				spr.setTexture(textures[index]);
+				spr.setScale(0.5f, 0.5f);
 				spr.setPosition(position.x + 32 * x, position.y + 32 * y);
 				sprites.push_back(spr);
 				
 				
 			}
-			std::cout << "\n";
+			
 		}
 
-		std::cout << "\n\n";
+		
 	}
 
 	~Map() { }
 
-	uint8_t atlasIndexAt(uint16_t x, uint16_t y, char tile) {
-		auto T = tileValueAt(x, y-1, tile);
-		auto L = tileValueAt(x-1, y, tile);
-		auto R = tileValueAt(x+1, y, tile);
-		auto B = tileValueAt(x, y+1, tile);
+	int atlasIndexAt(int x, int y, char tile) {
 
-		auto TL = (T == 0 || L == 0) ? 0 : tileValueAt(x - 1, y - 1, tile);
-		auto TR = (T == 0 || R == 0) ? 0 : tileValueAt(x + 1, y - 1, tile);
-		auto BL = (B == 0 || L == 0) ? 0 : tileValueAt(x - 1, y + 1, tile);
-		auto BR = (B == 0 || R == 0) ? 0 : tileValueAt(x + 1, y + 1, tile);
+		int index;
+		
+		if (tile == '#')
+			index = 0;
+		else {
+			index = 0;
+			if (tileValueAt(x, y - 1, tile)) index = index | 3;		// (3-ci png)
+			if (tileValueAt(x - 1, y, tile)) index = index | 5;		// (5-ty png)
+			if (tileValueAt(x + 1, y, tile)) index = index | 10;	// (10-ty png)
+			if (tileValueAt(x, y + 1, tile)) index = index | 12;	// (12-sty png)
+		}
 
-		return TL * 1 + T * 2 + TR * 4 + L * 8 + R * 16 + BL * 32 + B * 64 + BR * 128;
-
+		//std::cout << x << ", " << y << " : " << index << "\n";
+		return index;
 	}
 
-	uint8_t tileValueAt(uint16_t x, uint16_t y, char tile) {
-		if (x >= size.x || y >= size.y) {
+	int tileValueAt(int x, int y, char tile) {
+		if (x >= size.x || y >= size.y || x < 0 || y < 0) {
 			return 1;
 		}
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <unordered_map>
+#include <string>
 #include <SFML/Graphics.hpp>
 
 #include "window.hpp"
