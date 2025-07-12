@@ -1,5 +1,6 @@
 #include <iostream>
-
+#include <map>
+#include <unordered_map>
 #include <SFML/Graphics.hpp>
 
 #include "window.hpp"
@@ -15,6 +16,7 @@ int main() {
 	delete intro;
 
 	palette = new Palette();
+	mapa = new Map();
 
 	while (window->isOpen()) {
 
@@ -31,7 +33,18 @@ int main() {
 				window->close();
 			}
 
-			palette->handleEvent(event);
+			if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+				palette->handleEvent(event);
+			}
+
+			if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
+				palette->handleEvent(event);
+			}
+			if (event.type == sf::Event::MouseMoved) {
+				palette->handleEvent(event);
+			}
+
+
 		}
 
 		// update
@@ -39,6 +52,7 @@ int main() {
 
 		// render
 		window->clear(sf::Color(48,48,48));
+		mapa->draw();
 		palette->draw();
 		window->display();
 
