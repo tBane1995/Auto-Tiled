@@ -37,8 +37,8 @@ public:
 			"................"
 			"..###......##..."
 			".#####...#####.."
-			".############..."
-			"...##########..."
+			".##############."
+			"...###########.."
 			"..##..#######..."
 			"..#.....###....."
 			"................";
@@ -67,7 +67,7 @@ public:
 			for (int x = 0; x < size.x; x++) {
 
 				char tile = data[y*size.x + x];
-				int index = atlasIndexAt(x, y, tile);
+				int index = getTileIndex(x, y, tile);
 
 				sf::Sprite spr = sf::Sprite();
 				spr.setTexture(textures[index]);
@@ -85,36 +85,44 @@ public:
 
 	~Map() { }
 
-	int atlasIndexAt(int x, int y, char tile) {
+	int getTileIndex(int x, int y, char tile) {
 
 		int index;
 		
 		if (tile == '#')
-			index = 0;
+			index = 15;
 		else {
 			index = 0;
-			if (tileValueAt(x, y - 1, tile)) index = index | 3;		// (3-ci png)
-			if (tileValueAt(x - 1, y, tile)) index = index | 5;		// (5-ty png)
-			if (tileValueAt(x + 1, y, tile)) index = index | 10;	// (10-ty png)
-			if (tileValueAt(x, y + 1, tile)) index = index | 12;	// (12-sty png)
-		}
+			if (getTileValue(x, y - 1)) index = index | 3;		// (3-ci png)
+			if (getTileValue(x - 1, y)) index = index | 5;		// (5-ty png)
+			if (getTileValue(x + 1, y)) index = index | 10;	// (10-ty png)
+			if (getTileValue(x, y + 1)) index = index | 12;	// (12-sty png)
 
+			if (getTileValue(x - 1, y - 1)) index = index | 1;	// (1-szy png)
+			if (getTileValue(x + 1, y - 1)) index = index | 2;	// (2-gi png)
+			if (getTileValue(x - 1, y + 1)) index = index | 4;	// (4-ty png)
+			if (getTileValue(x + 1, y + 1)) index = index | 8;	// (8-my png)
+
+		}
+		
 		//std::cout << x << ", " << y << " : " << index << "\n";
+
 		return index;
 	}
 
-	int tileValueAt(int x, int y, char tile) {
+	int getTileValue(int x, int y) {
 		if (x >= size.x || y >= size.y || x < 0 || y < 0) {
-			return 1;
+			return 0;
 		}
 
-		return data[y * size.x + x] == tile ? 1 : 0;
+		return data[y * size.x + x] == '#' ? 1 : 0;
 	}
 
 	void draw() {
 		for (auto& tile : sprites) {
 			window->draw(tile);
 		}
+
 	}
 };
 
