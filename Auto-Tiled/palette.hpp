@@ -133,8 +133,8 @@ public:
 	bool is_moved;
 
 	std::vector < PaletteButton* > buttons;
-	int terrain_type;
-	int terrain_value;
+	int terrain_type = 0;
+	int terrain_value = 0;
 
 	Palette() : ElementGUI() {
 		
