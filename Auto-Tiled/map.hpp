@@ -8,51 +8,32 @@ public:
 	std::string data;
 	sf::Vector2i size;
 	std::vector < sf::Sprite > sprites;
-	std::vector < sf::Texture > textures;
+	sf::Texture tileset;
 
 	Map() {
 
-		
 		data =
-			"..##"
-			"..##"
-			"..##"
-			"..##";
+			"........................"
+			"........................"
+			"........................"
+			"......###......##......."
+			".....#####...#####......"
+			".....##############....."
+			".......###########......"
+			"......##..#######......."
+			"......#.....###........."
+			"........................"
+			"........................"
+			"........................";
 
-		size = sf::Vector2i(4, 4);
+		size = sf::Vector2i(24, 12);
 
-		data =
-			"################"
-			"################"
-			"##......##...###"
-			"#..##.......####"
-			"####.........###"
-			"######....######"
-			"################"
-			"################";
-
-		size = sf::Vector2i(16, 8);
-
-		data =
-			"................"
-			"..###......##..."
-			".#####...#####.."
-			".##############."
-			"...###########.."
-			"..##..#######..."
-			"..#.....###....."
-			"................";
-
-		size = sf::Vector2i(16, 8);
 		
 		position.x = (view.getSize().x - size.x * 32) / 2;
 		position.y = (view.getSize().y - size.y * 32) / 2;
 		
-		for (int i = 0; i < 16; i++) {
-			sf::Texture t;
-			t.loadFromFile("tex\\" + std::to_string(i) + ".png");
-			textures.push_back(t);
-		}
+		tileset = sf::Texture();
+		tileset.loadFromFile("tex\\00_set.png");
 
 		for (int y = 0; y < size.y; y++) {
 			for (int x = 0; x < size.x; x++) {
@@ -67,55 +48,73 @@ public:
 			for (int x = 0; x < size.x; x++) {
 
 				char tile = data[y*size.x + x];
-				int index = getTileIndex(x, y, tile);
+				int index = getTileIndex(x, y);
 
 				sf::Sprite spr = sf::Sprite();
-				spr.setTexture(textures[index]);
+				spr.setTexture(tileset);
+				spr.setTextureRect(sf::IntRect(index * 64, 0, 64, 64));
 				spr.setScale(0.5f, 0.5f);
-				spr.setPosition(position.x + 32 * x, position.y + 32 * y);
+				spr.setPosition(position.x + x*32, position.y + y*32);
 				sprites.push_back(spr);
 				
-				
 			}
-			
 		}
-
-		
 	}
 
 	~Map() { }
 
-	int getTileIndex(int x, int y, char tile) {
 
-		int index;
-		
-		if (tile == '#')
-			index = 15;
-		else {
-			index = 0;
-			if (getTileValue(x, y - 1)) index = index | 3;		// (3-ci png)
-			if (getTileValue(x - 1, y)) index = index | 5;		// (5-ty png)
-			if (getTileValue(x + 1, y)) index = index | 10;	// (10-ty png)
-			if (getTileValue(x, y + 1)) index = index | 12;	// (12-sty png)
-
-			if (getTileValue(x - 1, y - 1)) index = index | 1;	// (1-szy png)
-			if (getTileValue(x + 1, y - 1)) index = index | 2;	// (2-gi png)
-			if (getTileValue(x - 1, y + 1)) index = index | 4;	// (4-ty png)
-			if (getTileValue(x + 1, y + 1)) index = index | 8;	// (8-my png)
-
-		}
-		
-		//std::cout << x << ", " << y << " : " << index << "\n";
-
-		return index;
+	int getTileIndex(int x, int y) {
+		return getTileValue(x,y) | (getTileValue(x+1,y) << 1) | (getTileValue(x,y+1) << 2) | (getTileValue(x+1, y+1) << 3);
 	}
 
 	int getTileValue(int x, int y) {
 		if (x >= size.x || y >= size.y || x < 0 || y < 0) {
-			return 0;
+			return 1;
 		}
 
-		return data[y * size.x + x] == '#' ? 1 : 0;
+		return data[y * size.x + x] == '#' ? 0 : 1;
+	}
+
+	void editTile(int x, int y, TerrainType terrain_type) {
+
+		if (terrain_type == TerrainType::Water)
+			data[y * size.x + x] = '.';
+		else
+			data[y * size.x + x] = '#';
+
+		for (int yy = y - 1; yy <= y + 1; yy++) {
+			for (int xx = x - 1; xx <= x + 1; xx++) {
+
+				if (xx >= size.x || yy >= size.y || xx < 0 || yy < 0)
+					continue;
+
+				int index = getTileIndex(xx, yy);
+				sprites[yy*size.x+xx].setTextureRect(sf::IntRect(index * 64, 0, 64, 64));
+			}
+		}
+	}
+
+	void editTile(sf::Vector2f mopusePosition, TerrainType terrain_type) {
+
+		int x = (worldMousePosition.x + 16 - position.x) / 32;
+		int y = (worldMousePosition.y + 16 - position.y) / 32;
+
+		if (terrain_type == TerrainType::Water)
+			data[y * size.x + x] = '.';
+		else
+			data[y * size.x + x] = '#';
+
+		for (int yy = y - 1; yy <= y + 1; yy++) {
+			for (int xx = x - 1; xx <= x + 1; xx++) {
+
+				if (xx >= size.x || yy >= size.y || xx < 0 || yy < 0)
+					continue;
+
+				int index = getTileIndex(xx, yy);
+				sprites[yy * size.x + xx].setTextureRect(sf::IntRect(index * 64, 0, 64, 64));
+			}
+		}
 	}
 
 	void draw() {

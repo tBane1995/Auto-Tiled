@@ -7,11 +7,13 @@ public:
 	ElementGUI() { }
 	~ElementGUI() { }
 
+	void cursorHover();
 	void handleEvent(sf::Event& event);
 	void update();
 	void draw();
 };
 
-ElementGUI* elementGUIClicked = nullptr;
+ElementGUI* ElementGUI_hovered = nullptr;
+ElementGUI* ElementGUI_pressed = nullptr;
 
 #endif

@@ -1,28 +1,105 @@
 ﻿#ifndef palette_hpp
 #define palette_hpp
 
+enum class TerrainType { Water, Sands };
+enum class ButtonState { Idle, Hover, Pressed };
+
 class PaletteButton : ElementGUI {
 public:
 	const sf::Vector2f size = sf::Vector2f(64, 64);
 	sf::Vector2f position;
+	sf::RectangleShape rect;
 	sf::Texture tex;
 	sf::Sprite sprite;
+	ButtonState state;
+	std::function<void()> onclick_func;    
+	sf::Time clickTime;
 
 	PaletteButton(std::wstring name, std::string texture) {
+
+		rect = sf::RectangleShape(size);
+		rect.setOrigin(size.x/2, size.y/2);
+		rect.setPosition(position);
 
 		tex = sf::Texture();
 		tex.loadFromFile(texture);
 
 		sprite = sf::Sprite();
 		sprite.setTexture(tex);
-		sprite.setScale(4, 4);
 		sprite.setOrigin(tex.getSize().x/2, tex.getSize().y / 2);
-		
+		sprite.setPosition(position);
+
+		state = ButtonState::Idle;
+
+		onclick_func = []() {};
+		clickTime = currentTime;
+
 	}
 
 	void setPosition(sf::Vector2f position) {
 		this->position = position;
+		rect.setPosition(position);
 		sprite.setPosition(position);
+
+	}
+
+	void unclick() {
+		state = ButtonState::Idle;
+		//changeColor();
+	}
+
+	void hover() {
+		state = ButtonState::Hover;
+		//changeColor();
+	}
+
+	void click() {
+		state = ButtonState::Pressed;
+		//changeColor();
+		clickTime = currentTime;
+	}
+
+	void cursorHover() {
+		if (rect.getGlobalBounds().contains(worldMousePosition)) {
+			ElementGUI_hovered = this;
+		}
+		
+	}
+
+	void handleEvent(sf::Event& event) {
+		if (rect.getGlobalBounds().contains(worldMousePosition)) {
+
+			if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+				ElementGUI_pressed = this;
+			}
+			else if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
+				if (ElementGUI_pressed == this) {
+					click();
+					
+				}
+			}
+		}
+
+	} 
+
+	void update(bool hover_action = true) {
+
+		if (state == ButtonState::Pressed) {
+			if ((currentTime - clickTime).asSeconds() > 0.05f) {
+				if (onclick_func) {
+					onclick_func();
+				}
+					
+				ElementGUI_pressed = nullptr;
+				unclick();
+			}
+
+		}
+		else if (hover_action && ElementGUI_hovered == this) {
+			hover();
+		}
+		else
+			unclick();
 	}
 
 	void draw() {
@@ -46,7 +123,8 @@ public:
 	bool is_moved;
 
 	std::vector < PaletteButton* > buttons;
-
+	TerrainType terrrainType;
+	
 	Palette() : ElementGUI() {
 		
 		sf::Vector2i tiles(2, 2);
@@ -66,10 +144,20 @@ public:
 
 		is_moved = false;
 
-		buttons.push_back(new PaletteButton(L"water", "tex\\water.png"));
-		//buttons.push_back(new PaletteButton(L"sands", "tex\\sands.png"));
-		buttons.push_back(new PaletteButton(L"grass", "tex\\grass.png"));
-		//buttons.push_back(new PaletteButton(L"stone", "tex\\stone.png"));
+		PaletteButton* btn;
+		btn = new PaletteButton(L"water", "tex\\water.png");
+		btn->onclick_func = [this]() { 
+			terrrainType = TerrainType::Water; 
+			std::cout << "selected: water\n";
+			};
+		buttons.push_back(btn);
+
+		btn = new PaletteButton(L"sands", "tex\\sands.png");
+		btn->onclick_func = [this]() { 
+			terrrainType = TerrainType::Sands; 
+			std::cout << "selected: sands\n"; 
+			};
+		buttons.push_back(btn);
 
 		setPosition(sf::Vector2f(view.getSize().x - size.x - 32, 32));
 	}
@@ -94,32 +182,45 @@ public:
 		}
 	}
 
+	void cursorHover() {
+		for (auto& btn : buttons) {
+			btn->cursorHover();
+		}
+	}
+
 	void handleEvent(sf::Event& event) {
 		if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
 			if (bar_rect.getGlobalBounds().contains(worldMousePosition)) {
 				is_moved = true;
 				offset = position - worldMousePosition;
-				elementGUIClicked = this;
+				ElementGUI_pressed = this;
 			}
 		}
 
 		if (event.type == sf::Event::MouseMoved) {
 			if (is_moved == true) {
 				setPosition(worldMousePosition + offset);
-				elementGUIClicked = this;
+				ElementGUI_pressed = this;
 			}
 		}
 
 		if (event.type == sf::Event::MouseButtonReleased && (event.mouseButton.button == sf::Mouse::Left || event.mouseButton.button == sf::Mouse::Right)) {
 			is_moved = false;
 		}
+
+		for (auto& btn : buttons) {
+			btn->handleEvent(event);
+		}
 	}
 
 	void update() {
-		if (elementGUIClicked == this) {
+		if (ElementGUI_pressed == this) {
 			bar_rect.setPosition(position);
 			rect.setPosition(position + sf::Vector2f(0, bar_size.y));
 		}
+
+		for (auto& btn : buttons)
+			btn->update();
 	}
 
 	void draw() {

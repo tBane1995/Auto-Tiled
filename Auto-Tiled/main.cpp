@@ -2,11 +2,14 @@
 #include <map>
 #include <unordered_map>
 #include <string>
+#include <functional>
+
 #include <SFML/Graphics.hpp>
 
 #include "window.hpp"
 #include "mouse.hpp"
 #include "SFML_intro.hpp"
+#include "time.hpp"
 #include "elementGUI.hpp"
 #include "palette.hpp"
 #include "map.hpp"
@@ -20,10 +23,15 @@ int main() {
 	mapa = new Map();
 
 	while (window->isOpen()) {
+		prevTime = currentTime;
+		currentTime = timeClock.getElapsedTime();
 
 		mousePosition = sf::Mouse::getPosition(*window); // get the mouse position about window
 		worldMousePosition = window->mapPixelToCoords(mousePosition); // get global mouse position
 		
+		ElementGUI_hovered = nullptr;
+		palette->cursorHover();
+
 		sf::Event event;
 		while (window->pollEvent(event)) {
 
@@ -40,13 +48,21 @@ int main() {
 
 			if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
 				palette->handleEvent(event);
+				
 			}
+
 			if (event.type == sf::Event::MouseMoved) {
 				palette->handleEvent(event);
 			}
 
-
+			if (ElementGUI_pressed == nullptr) {
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+					mapa->editTile(worldMousePosition, palette->terrrainType);
+				}
+			}
 		}
+
+
 
 		// update
 		palette->update();
