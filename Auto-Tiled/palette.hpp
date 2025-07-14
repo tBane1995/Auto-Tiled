@@ -1,32 +1,42 @@
 ﻿#ifndef palette_hpp
 #define palette_hpp
 
-enum class TerrainType { Water, Sands };
 enum class ButtonState { Idle, Hover, Pressed };
 
 class PaletteButton : ElementGUI {
 public:
 	const sf::Vector2f size = sf::Vector2f(64, 64);
 	sf::Vector2f position;
+
 	sf::RectangleShape rect;
-	sf::Texture tex;
+	sf::Texture terrain_texture;
 	sf::Sprite sprite;
+	
 	ButtonState state;
 	std::function<void()> onclick_func;    
 	sf::Time clickTime;
 
-	PaletteButton(std::wstring name, std::string texture) {
+	std::string name;
+	int terrain_type;
+	int terrain_value;
+
+	PaletteButton(std::string name, int terrain_type, int terrain_value) {
+
+		this->name = name;
+		this->terrain_type = terrain_type;
+		this->terrain_value = terrain_value;
 
 		rect = sf::RectangleShape(size);
 		rect.setOrigin(size.x/2, size.y/2);
 		rect.setPosition(position);
 
-		tex = sf::Texture();
-		tex.loadFromFile(texture);
+		terrain_texture = sf::Texture();
+		terrain_texture.loadFromFile("tex\\set_0.png");
 
 		sprite = sf::Sprite();
-		sprite.setTexture(tex);
-		sprite.setOrigin(tex.getSize().x/2, tex.getSize().y / 2);
+		sprite.setTexture(terrain_texture);
+		sprite.setTextureRect(sf::IntRect(terrain_value * 15 * 64, terrain_type*64, 64, 64));
+		sprite.setOrigin(32,32);
 		sprite.setPosition(position);
 
 		state = ButtonState::Idle;
@@ -123,8 +133,9 @@ public:
 	bool is_moved;
 
 	std::vector < PaletteButton* > buttons;
-	TerrainType terrrainType;
-	
+	int terrain_type;
+	int terrain_value;
+
 	Palette() : ElementGUI() {
 		
 		sf::Vector2i tiles(2, 2);
@@ -145,17 +156,35 @@ public:
 		is_moved = false;
 
 		PaletteButton* btn;
-		btn = new PaletteButton(L"water", "tex\\water.png");
-		btn->onclick_func = [this]() { 
-			terrrainType = TerrainType::Water; 
-			std::cout << "selected: water\n";
+		btn = new PaletteButton("sands", 0, 0);
+		btn->onclick_func = [this, btn]() { 
+			terrain_type = btn->terrain_type;
+			terrain_value = btn->terrain_value;
+			std::cout << btn->name << " - " << btn->terrain_value << "\n";
 			};
 		buttons.push_back(btn);
 
-		btn = new PaletteButton(L"sands", "tex\\sands.png");
-		btn->onclick_func = [this]() { 
-			terrrainType = TerrainType::Sands; 
-			std::cout << "selected: sands\n"; 
+		btn = new PaletteButton("water", 0, 1);
+		btn->onclick_func = [this, btn]() { 
+			terrain_type = btn->terrain_type;
+			terrain_value = btn->terrain_value;
+			std::cout << btn->name << " - " << btn->terrain_value << "\n";
+			};
+		buttons.push_back(btn);
+
+		btn = new PaletteButton("sands", 1, 0);
+		btn->onclick_func = [this, btn]() {
+			terrain_type = btn->terrain_type;
+			terrain_value = btn->terrain_value;
+			std::cout << btn->name << " - " << btn->terrain_value << "\n";
+			};
+		buttons.push_back(btn);
+
+		btn = new PaletteButton("grass", 1, 1);
+		btn->onclick_func = [this, btn]() {
+			terrain_type = btn->terrain_type;
+			terrain_value = btn->terrain_value;
+			std::cout << btn->name << " - " << btn->terrain_value << "\n";
 			};
 		buttons.push_back(btn);
 

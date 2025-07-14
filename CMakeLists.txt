@@ -6,6 +6,7 @@ add_executable(${PROJECT_NAME} Auto-Tiled/main.cpp)
 target_sources(${PROJECT_NAME} PRIVATE
     Auto-Tiled/window.hpp
     Auto-Tiled/SFML_intro.hpp
+    Auto-Tiled/program_intro.hpp
     Auto-Tiled/mouse.hpp
     Auto-Tiled/time.hpp
     Auto-Tiled/elementGUI.hpp

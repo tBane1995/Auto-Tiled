@@ -9,6 +9,7 @@
 #include "window.hpp"
 #include "mouse.hpp"
 #include "SFML_intro.hpp"
+#include "program_intro.hpp"
 #include "time.hpp"
 #include "elementGUI.hpp"
 #include "palette.hpp"
@@ -18,6 +19,9 @@ int main() {
 
 	SFML_intro* intro = new SFML_intro(window);
 	delete intro;
+
+	Program_intro* intro2 = new Program_intro(window);
+	delete intro2;
 
 	palette = new Palette();
 	mapa = new Map();
@@ -48,6 +52,8 @@ int main() {
 
 			if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left) {
 				palette->handleEvent(event);
+
+				ElementGUI_pressed = nullptr;
 				
 			}
 
@@ -57,7 +63,7 @@ int main() {
 
 			if (ElementGUI_pressed == nullptr) {
 				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-					mapa->editTile(worldMousePosition, palette->terrrainType);
+					mapa->editTile(worldMousePosition, palette->terrain_type, palette->terrain_value);
 				}
 			}
 		}

@@ -5,39 +5,34 @@ class Map {
 public:
 	sf::Vector2f position;
 
-	std::string data;
+	std::vector < int > terrain_types;
+	std::vector < int > terrain_values;
+
 	sf::Vector2i size;
 	std::vector < sf::Sprite > sprites;
 	sf::Texture tileset;
 
 	Map() {
 
-		data =
-			"........................"
-			"........................"
-			"........................"
-			"......###......##......."
-			".....#####...#####......"
-			".....##############....."
-			".......###########......"
-			"......##..#######......."
-			"......#.....###........."
-			"........................"
-			"........................"
-			"........................";
-
+		
 		size = sf::Vector2i(24, 12);
 
+		for (int y = 0; y <= size.y; y++) {
+			for (int x = 0; x <= size.x; x++) {
+				terrain_types.push_back(int(0));
+				terrain_values.push_back(int(1));
+			}
+		}
 		
 		position.x = (view.getSize().x - size.x * 32) / 2;
 		position.y = (view.getSize().y - size.y * 32) / 2;
 		
 		tileset = sf::Texture();
-		tileset.loadFromFile("tex\\00_set.png");
+		tileset.loadFromFile("tex\\set_0.png");
 
 		for (int y = 0; y < size.y; y++) {
 			for (int x = 0; x < size.x; x++) {
-				std::cout << data[y*size.x + x];
+				std::cout << terrain_values[y*size.x + x];
 			}
 			std::cout << "\n";
 		}
@@ -47,12 +42,11 @@ public:
 		for (int y = 0; y < size.y; y++) {
 			for (int x = 0; x < size.x; x++) {
 
-				char tile = data[y*size.x + x];
 				int index = getTileIndex(x, y);
 
 				sf::Sprite spr = sf::Sprite();
 				spr.setTexture(tileset);
-				spr.setTextureRect(sf::IntRect(index * 64, 0, 64, 64));
+				spr.setTextureRect(sf::IntRect(index * 64, terrain_types[y*size.x+x]*64, 64, 64));
 				spr.setScale(0.5f, 0.5f);
 				spr.setPosition(position.x + x*32, position.y + y*32);
 				sprites.push_back(spr);
@@ -69,19 +63,14 @@ public:
 	}
 
 	int getTileValue(int x, int y) {
-		if (x >= size.x || y >= size.y || x < 0 || y < 0) {
-			return 1;
-		}
-
-		return data[y * size.x + x] == '#' ? 0 : 1;
+		
+		return terrain_values[y * size.x + x];
 	}
 
-	void editTile(int x, int y, TerrainType terrain_type) {
+	void editTile(int x, int y, int terrain_type, int terrain_value) {
 
-		if (terrain_type == TerrainType::Water)
-			data[y * size.x + x] = '.';
-		else
-			data[y * size.x + x] = '#';
+		terrain_types[y * size.x + x] = terrain_type;
+		terrain_values[y * size.x + x] = terrain_value;
 
 		for (int yy = y - 1; yy <= y + 1; yy++) {
 			for (int xx = x - 1; xx <= x + 1; xx++) {
@@ -90,20 +79,18 @@ public:
 					continue;
 
 				int index = getTileIndex(xx, yy);
-				sprites[yy*size.x+xx].setTextureRect(sf::IntRect(index * 64, 0, 64, 64));
+				sprites[yy*size.x+xx].setTextureRect(sf::IntRect(index * 64, terrain_types[yy * size.x + xx] * 64, 64, 64));
 			}
 		}
 	}
 
-	void editTile(sf::Vector2f mopusePosition, TerrainType terrain_type) {
+	void editTile(sf::Vector2f mopusePosition, int terrain_type, int terrain_value) {
 
 		int x = (worldMousePosition.x + 16 - position.x) / 32;
 		int y = (worldMousePosition.y + 16 - position.y) / 32;
 
-		if (terrain_type == TerrainType::Water)
-			data[y * size.x + x] = '.';
-		else
-			data[y * size.x + x] = '#';
+		terrain_types[y * size.x + x] = terrain_type;
+		terrain_values[y * size.x + x] = terrain_value;
 
 		for (int yy = y - 1; yy <= y + 1; yy++) {
 			for (int xx = x - 1; xx <= x + 1; xx++) {
@@ -112,7 +99,7 @@ public:
 					continue;
 
 				int index = getTileIndex(xx, yy);
-				sprites[yy * size.x + xx].setTextureRect(sf::IntRect(index * 64, 0, 64, 64));
+				sprites[yy * size.x + xx].setTextureRect(sf::IntRect(index * 64, terrain_types[yy * size.x + xx] * 64, 64, 64));
 			}
 		}
 	}
