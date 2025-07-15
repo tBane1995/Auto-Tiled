@@ -9,6 +9,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     Auto-Tiled/program_intro.hpp
     Auto-Tiled/mouse.hpp
     Auto-Tiled/time.hpp
+    Auto-Tiled/camera.hpp
     Auto-Tiled/elementGUI.hpp
     Auto-Tiled/palette.hpp
     Auto-Tiled/map.hpp

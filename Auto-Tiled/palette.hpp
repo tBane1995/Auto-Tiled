@@ -48,8 +48,8 @@ public:
 
 	void setPosition(sf::Vector2f position) {
 		this->position = position;
-		rect.setPosition(position);
-		sprite.setPosition(position);
+		rect.setPosition(position + cam->position);
+		sprite.setPosition(position + cam->position);
 
 	}
 
@@ -93,6 +93,8 @@ public:
 	} 
 
 	void update(bool hover_action = true) {
+
+		setPosition(position);
 
 		if (state == ButtonState::Pressed) {
 			if ((currentTime - clickTime).asSeconds() > 0.05f) {
@@ -188,7 +190,7 @@ public:
 			};
 		buttons.push_back(btn);
 
-		setPosition(sf::Vector2f(view.getSize().x - size.x - 32, 32));
+		setPosition(sf::Vector2f(cam->view.getSize().x/2 - size.x - 32, -cam->view.getSize().y/2+32));
 	}
 
 	
@@ -197,8 +199,8 @@ public:
 	void setPosition(sf::Vector2f position) {
 		this->position = position;
 
-		bar_rect.setPosition(position);
-		rect.setPosition(position + sf::Vector2f(0, bar_size.y));
+		bar_rect.setPosition(position + cam->position);
+		rect.setPosition(position + cam->position + sf::Vector2f(0, bar_size.y));
 
 		for (int i = 0; i < buttons.size(); i++) {
 			sf::Vector2f pos;
@@ -221,14 +223,7 @@ public:
 		if(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
 			if (bar_rect.getGlobalBounds().contains(worldMousePosition)) {
 				is_moved = true;
-				offset = position - worldMousePosition;
-				ElementGUI_pressed = this;
-			}
-		}
-
-		if (event.type == sf::Event::MouseMoved) {
-			if (is_moved == true) {
-				setPosition(worldMousePosition + offset);
+				offset = worldMousePosition - cam->position - position;
 				ElementGUI_pressed = this;
 			}
 		}
@@ -237,16 +232,19 @@ public:
 			is_moved = false;
 		}
 
+
 		for (auto& btn : buttons) {
 			btn->handleEvent(event);
 		}
+
+
 	}
 
 	void update() {
-		if (ElementGUI_pressed == this) {
-			bar_rect.setPosition(position);
-			rect.setPosition(position + sf::Vector2f(0, bar_size.y));
-		}
+		if (is_moved)
+			setPosition(worldMousePosition - cam->position - offset);
+		else
+			setPosition(position);
 
 		for (auto& btn : buttons)
 			btn->update();
