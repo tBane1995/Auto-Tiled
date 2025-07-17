@@ -1,5 +1,5 @@
 ﻿#ifndef map_hpp
-#define map_hpp
+#define map_hpps
 
 sf::Vector2f tile_size = sf::Vector2f(32, 32);
 
@@ -17,12 +17,12 @@ public:
 	Map() {
 
 		
-		size = sf::Vector2i(24, 12);
+		size = sf::Vector2i(48, 32);
 
 		for (int y = 0; y <= size.y; y++) {
 			for (int x = 0; x <= size.x; x++) {
 				terrain_types.push_back(int(0));
-				terrain_values.push_back(int(1));
+				terrain_values.push_back(int(0));
 			}
 		}
 		
@@ -48,8 +48,8 @@ public:
 
 				sf::Sprite spr = sf::Sprite();
 				spr.setTexture(tileset);
-				spr.setTextureRect(sf::IntRect(index * 64, terrain_types[y*size.x+x]*64, 64, 64));
-				spr.setScale(tile_size.x/32.0f*0.5f, tile_size.y/32.0f*0.5f);
+				spr.setTextureRect(sf::IntRect(index * 64 + (x*16)%64, terrain_types[y * size.x + x] * 64 + (y * 16) % 64, 16, 16));
+				spr.setScale(tile_size.x/16.0f, tile_size.y/16.0f);
 				spr.setPosition(position.x + x * tile_size.x, position.y + y * tile_size.y);
 				sprites.push_back(spr);
 				
@@ -62,12 +62,15 @@ public:
 
 	int getTileIndex(int x, int y) {
 		int ttype = terrain_types[y * size.x + x];
-		return getTileValue(x,y, ttype) | (getTileValue(x+1,y,ttype) << 1) | (getTileValue(x,y+1,ttype) << 2) | (getTileValue(x+1, y+1,ttype) << 3);
+		return getTileValue(x,y, ttype) | (getTileValue(x+1,y, ttype) << 1) | (getTileValue(x,y+1, ttype) << 2) | (getTileValue(x+1, y+1, ttype) << 3);
 	}
 
-	int getTileValue(int x, int y, int terrain_type) {
-		
-		return (terrain_type == terrain_types[y * size.x + x]) ? terrain_values[y * size.x + x] : 0;
+	int getTileValue(int x, int y, int ttype) {
+
+		if (ttype == terrain_types[y * size.x + x] == 0)
+			return (terrain_values[y * size.x + x])? 0 : 1;
+		else
+			return terrain_values[y * size.x + x];
 		 
 	}
 
@@ -83,12 +86,12 @@ public:
 					continue;
 
 				int index = getTileIndex(xx, yy);
-				sprites[yy*size.x+xx].setTextureRect(sf::IntRect(index * 64, terrain_types[yy * size.x + xx] * 64, 64, 64));
+				sprites[yy * size.x + xx].setTextureRect(sf::IntRect(index * 64 + (yy * 16) % 64, terrain_types[yy * size.x + xx] * 64 + (xx * 16) % 64, 16, 16));
 			}
 		}
 	}
 
-	void editTile(sf::Vector2f mopusePosition, int terrain_type, int terrain_value) {
+	void editTile(sf::Vector2f worldMousePosition, int terrain_type, int terrain_value) {
 
 		int x = (worldMousePosition.x + 16 - position.x) / tile_size.x;
 		int y = (worldMousePosition.y + 16 - position.y) / tile_size.y;
@@ -103,7 +106,9 @@ public:
 					continue;
 
 				int index = getTileIndex(xx, yy);
-				sprites[yy * size.x + xx].setTextureRect(sf::IntRect(index * 64, terrain_types[yy * size.x + xx] * 64, 64, 64));
+				int tu = int(xx * tile_size.x) % 64 + index * 64;
+				int tv = int(yy * tile_size.y) % 64 + terrain_types[yy * size.x + xx] * 64;
+				sprites[yy * size.x + xx].setTextureRect(sf::IntRect(tu, tv, 16, 16));
 			}
 		}
 	}

@@ -8,7 +8,7 @@ public:
 
 	Camera() {
 		position = sf::Vector2f(0, 0);
-		view.setSize(sf::Vector2f(view.getSize().x, view.getSize().y));
+		view.setSize(window->getView().getSize());
 		view.setCenter(position);
 	}
 

@@ -5,7 +5,7 @@ enum class ButtonState { Idle, Hover, Pressed };
 
 class PaletteButton : ElementGUI {
 public:
-	const sf::Vector2f size = sf::Vector2f(64, 64);
+	sf::Vector2f size = sf::Vector2f(64, 64);
 	sf::Vector2f position;
 
 	sf::RectangleShape rect;
@@ -35,8 +35,9 @@ public:
 
 		sprite = sf::Sprite();
 		sprite.setTexture(terrain_texture);
-		sprite.setTextureRect(sf::IntRect(terrain_value * 15 * 64, terrain_type*64, 64, 64));
-		sprite.setOrigin(32,32);
+		sprite.setTextureRect(sf::IntRect(terrain_value * 15 * 64, terrain_type*64, 16, 16));
+		sprite.setOrigin(8, 8);
+		sprite.setScale(size.x/16.0f, size.y/16.0f);
 		sprite.setPosition(position);
 
 		state = ButtonState::Idle;
