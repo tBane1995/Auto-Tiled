@@ -23,7 +23,7 @@
 4. Otwórz **Wiersz poleceń (cmd)**.
 5. Przejdź do katalogu projektu:
 `
-cd ..\..\Easy Notepad
+cd ..\..\Auto-Tiled
 `
 6. Utwórz folder **build**:
 `
