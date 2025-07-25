@@ -141,7 +141,7 @@ public:
 
 	Palette() : ElementGUI() {
 		
-		sf::Vector2i tiles(2, 2);
+		sf::Vector2i tiles(2, 4);
 
 		bar_size = sf::Vector2f(tiles.x * 64 + (tiles.x + 1) * margin, 24);
 		size = sf::Vector2f(tiles.x * 64 + (tiles.x + 1) * margin, tiles.y * 64 + (tiles.y + 1) * margin);
@@ -184,6 +184,38 @@ public:
 		buttons.push_back(btn);
 
 		btn = new PaletteButton("grass", 1, 1);
+		btn->onclick_func = [this, btn]() {
+			terrain_type = btn->terrain_type;
+			terrain_value = btn->terrain_value;
+			std::cout << btn->name << " - " << btn->terrain_value << "\n";
+			};
+		buttons.push_back(btn);
+
+		btn = new PaletteButton("sands", 2, 0);
+		btn->onclick_func = [this, btn]() {
+			terrain_type = btn->terrain_type;
+			terrain_value = btn->terrain_value;
+			std::cout << btn->name << " - " << btn->terrain_value << "\n";
+			};
+		buttons.push_back(btn);
+
+		btn = new PaletteButton("steps", 2, 1);
+		btn->onclick_func = [this, btn]() {
+			terrain_type = btn->terrain_type;
+			terrain_value = btn->terrain_value;
+			std::cout << btn->name << " - " << btn->terrain_value << "\n";
+			};
+		buttons.push_back(btn);
+
+		btn = new PaletteButton("grass", 3, 0);
+		btn->onclick_func = [this, btn]() {
+			terrain_type = btn->terrain_type;
+			terrain_value = btn->terrain_value;
+			std::cout << btn->name << " - " << btn->terrain_value << "\n";
+			};
+		buttons.push_back(btn);
+
+		btn = new PaletteButton("steps", 3, 1);
 		btn->onclick_func = [this, btn]() {
 			terrain_type = btn->terrain_type;
 			terrain_value = btn->terrain_value;
